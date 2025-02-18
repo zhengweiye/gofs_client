@@ -1,4 +1,4 @@
-package goflow_client
+package gofs_client
 
 type FileVo struct {
 	FileId     string `json:"fileId"`
