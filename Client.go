@@ -43,3 +43,7 @@ func Create(opt Option) *Client {
 func (c *Client) GetFileService() FileService {
 	return newFileService(c)
 }
+
+func (c *Client) GetPdfService() PdfService {
+	return newPdfService(c)
+}
