@@ -6,6 +6,7 @@ type FileService interface {
 	DownloadFileByUrl(url string) (fileId string)
 	DownloadFileByUrls(urls []string) (fileIds []string)
 	UploadTempFile(data []byte, fileName, dir string, autoRename bool) (file FileVo)
+	Upload(data []byte, fileName string) (file FileVo)
 	CopyFileToTemp(fileId, dir string, autoRename bool) (file FileVo)
 	GetFile(fileId string) (file FileVo)
 	GetFiles(fileIds []string) (files []FileVo)
@@ -65,6 +66,18 @@ func (f FileServiceImpl) UploadTempFile(data []byte, fileName, dir string, autoR
 		"dir":        dir,
 		"autoRename": fmt.Sprint(autoRename),
 	})
+	if err != nil {
+		panic(err)
+	}
+	if result.Code != 200 {
+		panic(result.Msg)
+	}
+	file = result.Data
+	return
+}
+
+func (f FileServiceImpl) Upload(data []byte, fileName string) (file FileVo) {
+	result, err := upload[FileVo](f.client, "rpc/upload", data, fileName, map[string]string{})
 	if err != nil {
 		panic(err)
 	}
