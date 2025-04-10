@@ -1,8 +1,8 @@
 package gofs_client
 
 type PdfService interface {
-	ToPdfByFileId(fileId, tempDir string) (file FileVo)
-	ToPdfByStorePath(storePath, tempDir string) (file FileVo)
+	ToPdfByFileId(fileId, outputDir string) (file FileVo)
+	ToPdfByStorePath(storePath, outputDir string) (file FileVo)
 }
 
 type PdfServiceImpl struct {
@@ -15,10 +15,10 @@ func newPdfService(client *Client) PdfService {
 	}
 }
 
-func (p PdfServiceImpl) ToPdfByFileId(fileId, tempDir string) (file FileVo) {
+func (p PdfServiceImpl) ToPdfByFileId(fileId, outputDir string) (file FileVo) {
 	result, err := httpPost[FileVo](p.client, "rpc/pdf/toPdfByFileId", map[string]any{
-		"id":      fileId,
-		"tempDir": tempDir,
+		"id":        fileId,
+		"outputDir": outputDir,
 	})
 	if err != nil {
 		panic(err)
@@ -30,10 +30,10 @@ func (p PdfServiceImpl) ToPdfByFileId(fileId, tempDir string) (file FileVo) {
 	return
 }
 
-func (p PdfServiceImpl) ToPdfByStorePath(storePath, tempDir string) (file FileVo) {
+func (p PdfServiceImpl) ToPdfByStorePath(storePath, outputDir string) (file FileVo) {
 	result, err := httpPost[FileVo](p.client, "rpc/pdf/toPdfByStorePath", map[string]any{
 		"storePath": storePath,
-		"tempDir":   tempDir,
+		"outputDir": outputDir,
 	})
 	if err != nil {
 		panic(err)
