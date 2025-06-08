@@ -55,6 +55,7 @@ func download(client *Client, methodPath string, param any) (data []byte, err er
 
 	url := fmt.Sprintf("%s://%s:%d/%s/%s", client.http, client.ip, client.port, client.contextPath, methodPath)
 	request, err := http.NewRequest("POST", url, body)
+	defer request.Body.Close()
 	if err != nil {
 		return
 	}
@@ -63,10 +64,10 @@ func download(client *Client, methodPath string, param any) (data []byte, err er
 	request.Header.Set("appSecret", client.appSecret)
 	request.Header.Set("env", client.env)
 	resp, err := httpClient.Do(request)
+	defer resp.Body.Close()
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
 
 	// 状态码判断
 	if resp.StatusCode != 200 {
@@ -118,6 +119,7 @@ func upload[T any](client *Client, methodPath string, fileBytes []byte, fileName
 	// 创建HTTP请求
 	url := fmt.Sprintf("%s://%s:%d/%s/%s", client.http, client.ip, client.port, client.contextPath, methodPath)
 	req, err := http.NewRequest("POST", url, &buffer)
+	defer req.Body.Close()
 	if err != nil {
 		return
 	}
@@ -130,10 +132,10 @@ func upload[T any](client *Client, methodPath string, fileBytes []byte, fileName
 
 	// 发送请求
 	resp, err := httpClient.Do(req)
+	defer resp.Body.Close()
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
 
 	// 状态码判断
 	if resp.StatusCode != 200 {
@@ -176,6 +178,7 @@ func httpPost[T any](client *Client, methodPath string, param any) (data Result[
 	body = bytes.NewReader(paramBytes)
 
 	request, err := http.NewRequest("POST", fmt.Sprintf("%s://%s:%d/%s/%s", client.http, client.ip, client.port, client.contextPath, methodPath), body)
+	defer request.Body.Close()
 	if err != nil {
 		return
 	}
@@ -184,10 +187,10 @@ func httpPost[T any](client *Client, methodPath string, param any) (data Result[
 	request.Header.Set("appSecret", client.appSecret)
 	request.Header.Set("env", client.env)
 	resp, err := httpClient.Do(request)
+	defer resp.Body.Close()
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
 
 	// 状态码判断
 	if resp.StatusCode != 200 {
