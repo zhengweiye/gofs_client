@@ -22,3 +22,8 @@ type WaterInfo struct {
 	Longitude float64 `json:"longitude"`
 	Latitude  float64 `json:"latitude"`
 }
+
+type PdfVo struct {
+	StorePath string `json:"storePath"`
+	PageNum   int    `json:"pageNum"`
+}

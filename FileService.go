@@ -6,7 +6,6 @@ type FileService interface {
 	DownloadFileByUrl(url string) (fileId string)
 	DownloadFileByUrls(urls []string) (fileIds []string)
 	UploadTempFile(data []byte, fileName, dir string, autoRename bool) (file FileVo)
-	Upload(data []byte, fileName string) (file FileVo)
 	CopyFileToTemp(fileId, dir string, autoRename bool) (file FileVo)
 	GetFile(fileId string) (file FileVo)
 	GetFiles(fileIds []string) (files []FileVo)
@@ -14,12 +13,10 @@ type FileService interface {
 	GetFilesByBusinessIds(businessIds []string, bucketCode string) (files []File2Vo)
 	GetFileBytesById(fileId string) (data []byte)
 	GetFileBytesByStorePath(storePath string) (data []byte)
-	DeleteById(fileId string)
-	DeleteByBusinessId(businessId, bucketCode string)
 	BindBucket(fileId, businessId, bucketCode string)
 	BindBuckets(fileIds []string, businessId, bucketCode string)
-	BindBucketWithWater(fileId, businessId, bucketCode string, waterInfo WaterInfo)
-	BindBucketsWithWater(fileIds []string, businessId, bucketCode string, waterInfo WaterInfo)
+	DeleteByFileId(fileId string)
+	DeleteByBusinessId(businessId, bucketCode string)
 	CompressToZip(dir, zipName string, autoDelete bool) (file FileVo)
 }
 
@@ -34,7 +31,7 @@ func newFileService(client *Client) FileService {
 }
 
 func (f FileServiceImpl) DownloadFileByUrl(url string) (fileId string) {
-	result, err := httpPost[string](f.client, "rpc/downloadFileByUrl", map[string]any{
+	result, err := httpPost[string](f.client, "file/downloadFileByUrl", map[string]any{
 		"url": url,
 	})
 	if err != nil {
@@ -48,7 +45,7 @@ func (f FileServiceImpl) DownloadFileByUrl(url string) (fileId string) {
 }
 
 func (f FileServiceImpl) DownloadFileByUrls(urls []string) (fileIds []string) {
-	result, err := httpPost[[]string](f.client, "rpc/downloadFileByUrls", map[string]any{
+	result, err := httpPost[[]string](f.client, "file/downloadFileByUrls", map[string]any{
 		"urls": urls,
 	})
 	if err != nil {
@@ -62,7 +59,7 @@ func (f FileServiceImpl) DownloadFileByUrls(urls []string) (fileIds []string) {
 }
 
 func (f FileServiceImpl) UploadTempFile(data []byte, fileName, dir string, autoRename bool) (file FileVo) {
-	result, err := upload[FileVo](f.client, "rpc/uploadTempFile", data, fileName, map[string]string{
+	result, err := upload[FileVo](f.client, "file/uploadFileToTemp", data, fileName, map[string]string{
 		"dir":        dir,
 		"autoRename": fmt.Sprint(autoRename),
 	})
@@ -76,20 +73,8 @@ func (f FileServiceImpl) UploadTempFile(data []byte, fileName, dir string, autoR
 	return
 }
 
-func (f FileServiceImpl) Upload(data []byte, fileName string) (file FileVo) {
-	result, err := upload[FileVo](f.client, "rpc/upload", data, fileName, map[string]string{})
-	if err != nil {
-		panic(err)
-	}
-	if result.Code != 200 {
-		panic(result.Msg)
-	}
-	file = result.Data
-	return
-}
-
 func (f FileServiceImpl) CopyFileToTemp(fileId, dir string, autoRename bool) (file FileVo) {
-	result, err := httpPost[FileVo](f.client, "rpc/copyFileToTemp", map[string]any{
+	result, err := httpPost[FileVo](f.client, "file/copyFileToTempp", map[string]any{
 		"fileId":     fileId,
 		"dir":        dir,
 		"autoRename": autoRename,
@@ -105,7 +90,7 @@ func (f FileServiceImpl) CopyFileToTemp(fileId, dir string, autoRename bool) (fi
 }
 
 func (f FileServiceImpl) GetFile(fileId string) (file FileVo) {
-	result, err := httpPost[FileVo](f.client, "rpc/getFile", map[string]any{
+	result, err := httpPost[FileVo](f.client, "file/getFile", map[string]any{
 		"id": fileId,
 	})
 	if err != nil {
@@ -119,7 +104,7 @@ func (f FileServiceImpl) GetFile(fileId string) (file FileVo) {
 }
 
 func (f FileServiceImpl) GetFiles(fileIds []string) (files []FileVo) {
-	result, err := httpPost[[]FileVo](f.client, "rpc/getFiles", map[string]any{
+	result, err := httpPost[[]FileVo](f.client, "file/getFiles", map[string]any{
 		"fileIds": fileIds,
 	})
 	if err != nil {
@@ -133,7 +118,7 @@ func (f FileServiceImpl) GetFiles(fileIds []string) (files []FileVo) {
 }
 
 func (f FileServiceImpl) GetFilesByBusinessId(businessId, bucketCode string) (files []FileVo) {
-	result, err := httpPost[[]FileVo](f.client, "rpc/getFilesByBusinessId", map[string]any{
+	result, err := httpPost[[]FileVo](f.client, "file/getFilesByBusinessId", map[string]any{
 		"businessId": businessId,
 		"bucketCode": bucketCode,
 	})
@@ -148,7 +133,7 @@ func (f FileServiceImpl) GetFilesByBusinessId(businessId, bucketCode string) (fi
 }
 
 func (f FileServiceImpl) GetFilesByBusinessIds(businessIds []string, bucketCode string) (files []File2Vo) {
-	result, err := httpPost[[]File2Vo](f.client, "rpc/getFilesByBusinessIds", map[string]any{
+	result, err := httpPost[[]File2Vo](f.client, "file/getFilesByBusinessIds", map[string]any{
 		"businessIds": businessIds,
 		"bucketCode":  bucketCode,
 	})
@@ -163,7 +148,7 @@ func (f FileServiceImpl) GetFilesByBusinessIds(businessIds []string, bucketCode 
 }
 
 func (f FileServiceImpl) GetFileBytesById(fileId string) (data []byte) {
-	data, err := download(f.client, "rpc/getFileBytesById", map[string]any{
+	data, err := download(f.client, "file/getFileBytesById", map[string]any{
 		"id": fileId,
 	})
 	if err != nil {
@@ -173,7 +158,7 @@ func (f FileServiceImpl) GetFileBytesById(fileId string) (data []byte) {
 }
 
 func (f FileServiceImpl) GetFileBytesByStorePath(storePath string) (data []byte) {
-	data, err := download(f.client, "rpc/getFileBytesByStorePath", map[string]any{
+	data, err := download(f.client, "file/getFileBytesByStorePath", map[string]any{
 		"storePath": storePath,
 	})
 	if err != nil {
@@ -182,35 +167,8 @@ func (f FileServiceImpl) GetFileBytesByStorePath(storePath string) (data []byte)
 	return
 }
 
-func (f FileServiceImpl) DeleteById(fileId string) {
-	result, err := httpPost[any](f.client, "rpc/deleteById", map[string]any{
-		"id": fileId,
-	})
-	if err != nil {
-		panic(err)
-	}
-	if result.Code != 200 {
-		panic(result.Msg)
-	}
-	return
-}
-
-func (f FileServiceImpl) DeleteByBusinessId(businessId, bucketCode string) {
-	result, err := httpPost[any](f.client, "rpc/deleteByBusinessId", map[string]any{
-		"businessId": businessId,
-		"bucketCode": bucketCode,
-	})
-	if err != nil {
-		panic(err)
-	}
-	if result.Code != 200 {
-		panic(result.Msg)
-	}
-	return
-}
-
 func (f FileServiceImpl) BindBucket(fileId, businessId, bucketCode string) {
-	result, err := httpPost[any](f.client, "rpc/bindBucket", map[string]any{
+	result, err := httpPost[any](f.client, "file/bindBucket", map[string]any{
 		"fileId":     fileId,
 		"businessId": businessId,
 		"bucketCode": bucketCode,
@@ -225,7 +183,7 @@ func (f FileServiceImpl) BindBucket(fileId, businessId, bucketCode string) {
 }
 
 func (f FileServiceImpl) BindBuckets(fileIds []string, businessId, bucketCode string) {
-	result, err := httpPost[any](f.client, "rpc/bindBuckets", map[string]any{
+	result, err := httpPost[any](f.client, "file/bindBuckets", map[string]any{
 		"fileIds":    fileIds,
 		"businessId": businessId,
 		"bucketCode": bucketCode,
@@ -239,12 +197,9 @@ func (f FileServiceImpl) BindBuckets(fileIds []string, businessId, bucketCode st
 	return
 }
 
-func (f FileServiceImpl) BindBucketWithWater(fileId, businessId, bucketCode string, waterInfo WaterInfo) {
-	result, err := httpPost[any](f.client, "rpc/bindBucketWithWater", map[string]any{
-		"fileId":     fileId,
-		"businessId": businessId,
-		"bucketCode": bucketCode,
-		"waterInfo":  waterInfo,
+func (f FileServiceImpl) DeleteByFileId(fileId string) {
+	result, err := httpPost[any](f.client, "file/deleteById", map[string]any{
+		"id": fileId,
 	})
 	if err != nil {
 		panic(err)
@@ -255,12 +210,10 @@ func (f FileServiceImpl) BindBucketWithWater(fileId, businessId, bucketCode stri
 	return
 }
 
-func (f FileServiceImpl) BindBucketsWithWater(fileIds []string, businessId, bucketCode string, waterInfo WaterInfo) {
-	result, err := httpPost[any](f.client, "rpc/bindBucketsWithWater", map[string]any{
-		"fileIds":    fileIds,
+func (f FileServiceImpl) DeleteByBusinessId(businessId, bucketCode string) {
+	result, err := httpPost[any](f.client, "file/deleteByBusinessId", map[string]any{
 		"businessId": businessId,
 		"bucketCode": bucketCode,
-		"waterInfo":  waterInfo,
 	})
 	if err != nil {
 		panic(err)
@@ -272,7 +225,7 @@ func (f FileServiceImpl) BindBucketsWithWater(fileIds []string, businessId, buck
 }
 
 func (f FileServiceImpl) CompressToZip(dir, zipName string, autoDelete bool) (file FileVo) {
-	result, err := httpPost[FileVo](f.client, "rpc/compressToZip", map[string]any{
+	result, err := httpPost[FileVo](f.client, "file/compressToZip", map[string]any{
 		"dir":        dir,
 		"zipName":    zipName,
 		"autoDelete": autoDelete,
