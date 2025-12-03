@@ -1,7 +1,7 @@
 package gofs_client
 
 type VideoService interface {
-	cutImages(fileId string, count int) (urls []string)
+	CutImages(fileId string, count int) (urls []string)
 }
 
 type VideoServiceImpl struct {
@@ -14,7 +14,7 @@ func newVideoService(client *Client) VideoService {
 	}
 }
 
-func (v VideoServiceImpl) cutImages(fileId string, count int) (urls []string) {
+func (v VideoServiceImpl) CutImages(fileId string, count int) (urls []string) {
 	result, err := httpPost[[]string](v.client, "video/cutImages", map[string]any{
 		"fileId": fileId,
 		"count":  count,

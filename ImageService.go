@@ -1,7 +1,7 @@
 package gofs_client
 
 type ImageService interface {
-	addWaterInfo(fileId, address string, longitude, latitude float64)
+	AddWaterInfo(fileId, address string, longitude, latitude float64)
 }
 
 type ImageServiceImpl struct {
@@ -14,7 +14,7 @@ func newImageService(client *Client) ImageService {
 	}
 }
 
-func (i ImageServiceImpl) addWaterInfo(fileId, address string, longitude, latitude float64) {
+func (i ImageServiceImpl) AddWaterInfo(fileId, address string, longitude, latitude float64) {
 	result, err := httpPost[any](i.client, "image/addWater", map[string]any{
 		"fileId":    fileId,
 		"address":   address,

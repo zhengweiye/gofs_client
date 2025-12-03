@@ -1,8 +1,8 @@
 package gofs_client
 
 type QrcodeService interface {
-	create(imageName, txt, dir string, width, height int) (url string)
-	getPath(imageName, dir string) (url string)
+	Create(imageName, txt, dir string, width, height int) (url string)
+	GetPath(imageName, dir string) (url string)
 }
 
 type QrcodeServiceImpl struct {
@@ -15,7 +15,7 @@ func newQrcodeService(client *Client) QrcodeService {
 	}
 }
 
-func (q QrcodeServiceImpl) create(imageName, txt, dir string, width, height int) (url string) {
+func (q QrcodeServiceImpl) Create(imageName, txt, dir string, width, height int) (url string) {
 	result, err := httpPost[string](q.client, "qrCode/create", map[string]any{
 		"imageName": imageName,
 		"txt":       txt,
@@ -33,7 +33,7 @@ func (q QrcodeServiceImpl) create(imageName, txt, dir string, width, height int)
 	return
 }
 
-func (q QrcodeServiceImpl) getPath(imageName, dir string) (url string) {
+func (q QrcodeServiceImpl) GetPath(imageName, dir string) (url string) {
 	result, err := httpPost[string](q.client, "qrCode/getPath", map[string]any{
 		"imageName": imageName,
 		"dir":       dir,
