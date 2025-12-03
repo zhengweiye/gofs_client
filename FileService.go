@@ -207,7 +207,6 @@ func (f FileServiceImpl) DeleteByFileId(fileId string) {
 	if result.Code != 200 {
 		panic(result.Msg)
 	}
-	return
 }
 
 func (f FileServiceImpl) DeleteByBusinessId(businessId, bucketCode string) {

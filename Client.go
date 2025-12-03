@@ -47,3 +47,15 @@ func (c *Client) GetFileService() FileService {
 func (c *Client) GetPdfService() PdfService {
 	return newPdfService(c)
 }
+
+func (c *Client) GetImageService() ImageService {
+	return newImageService(c)
+}
+
+func (c *Client) GetVideoService() VideoService {
+	return newVideoService(c)
+}
+
+func (c *Client) GetQrcodeService() QrcodeService {
+	return newQrcodeService(c)
+}
